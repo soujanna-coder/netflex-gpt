@@ -2,9 +2,13 @@ import React, { useState, useRef } from "react";
 import Header from "./Header";
 import { checkValidData } from "../utils/validate";
 import netflexBackgroundImage from "../assets/image/netflex.jpg";
+import {auth} from "../utils/firebase";
+import { createUserWithEmailAndPassword , signInWithEmailAndPassword} from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const navigate = useNavigate();
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
   };
@@ -14,12 +18,52 @@ const Login = () => {
   const handleButtonClick = () => {
     console.log(email.current.value, password.current.value);
     const message = checkValidData(email.current.value, password.current.value);
-    console.log(message);
-    setErrorMessage(message);
+    if(message !== null)
+    {
+      console.log(message);
+      setErrorMessage(message);
+      return 
+    }
+    else{
+    if(!isSignInForm)
+    {
+  
+      createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
+        .then((userCredential) => {
+          // Signed up 
+          const user = userCredential.user;
+          console.log(user)
+          
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // ..
+          setErrorMessage(`${errorMessage}   ${errorCode}`);
+        });
+    }
+    else
+    {
+      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        console.log(user);
+        navigate("/browser");
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
+    }
+    }
+
   };
   return (
     <>
-      <Header />
+      <Header isSignin = {false}/>
       <div className="absolute h-full	">
         <img
           className="w-screen h-screen"
