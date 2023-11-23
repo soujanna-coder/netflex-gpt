@@ -2,13 +2,19 @@ import React, { useState, useRef } from "react";
 import Header from "./Header";
 import { checkValidData } from "../utils/validate";
 import netflexBackgroundImage from "../assets/image/netflex.jpg";
-import {auth} from "../utils/firebase";
-import { createUserWithEmailAndPassword , signInWithEmailAndPassword} from "firebase/auth";
+import { auth } from "../utils/firebase";
+import { updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
   };
@@ -16,54 +22,62 @@ const Login = () => {
   const password = useRef(null);
   const name = useRef(null);
   const handleButtonClick = () => {
-    console.log(email.current.value, password.current.value);
     const message = checkValidData(email.current.value, password.current.value);
-    if(message !== null)
-    {
-      console.log(message);
+    if (message !== null) {
       setErrorMessage(message);
-      return 
-    }
-    else{
-    if(!isSignInForm)
-    {
-  
-      createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
-        .then((userCredential) => {
-          // Signed up 
-          const user = userCredential.user;
-          console.log(user)
-          
-          // ...
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // ..
-          setErrorMessage(`${errorMessage}   ${errorCode}`);
-        });
-    }
-    else
-    {
-      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
-      .then((userCredential) => {
-        // Signed in 
-        const user = userCredential.user;
-        console.log(user);
-        navigate("/browser");
-        // ...
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-      });
-    }
-    }
+      return;
+    } else {
+      if (!isSignInForm) {
+        createUserWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        )
+          .then((userCredential) => {
+            // Signed up
+            const user = userCredential.user;
 
+            updateProfile(auth.currentUser, {
+              displayName: name.current.value,
+            })
+              .then(() => {
+                const { uid, email, displayName } = auth.currentUser;
+
+                dispatch(
+                  addUser({ uid: uid, email: email, displayName: displayName })
+                );
+              })
+              .catch((error) => {});
+            // ...
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // ..
+            setErrorMessage(`${errorMessage}   ${errorCode}`);
+          });
+      } else {
+        signInWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        )
+          .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+
+            // ...
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+          });
+      }
+    }
   };
   return (
     <>
-      <Header isSignin = {false}/>
+      <Header isSignin={false} />
       <div className="absolute h-full	">
         <img
           className="w-screen h-screen"
