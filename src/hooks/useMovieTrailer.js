@@ -10,13 +10,13 @@ const useMovieTrailer = (movieId) => {
       API_OPTIONS
     );
     const json = await data.json();
-    console.log(json);
+
     const trailer = await json.results.filter((data) => {
       if (data.type === "Trailer") {
         return data;
       }
     });
-    console.log(trailer[0].key);
+
     dispatch(addTrailerVideo(trailer[0]));
   };
   useEffect(() => {
