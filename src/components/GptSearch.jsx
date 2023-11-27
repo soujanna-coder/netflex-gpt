@@ -12,9 +12,10 @@ const GptSearch = () => {
           alt="BackGroundImage"
         />
       </div>
-      <GptSearchBar />
-      <GptMovieSuggestions />
-      <h1 className="text-white font-bold">{"Gpt Search"}</h1>
+      <div>
+        <GptSearchBar />
+        <GptMovieSuggestions />
+      </div>
     </div>
   );
 };
