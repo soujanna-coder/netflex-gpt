@@ -5,7 +5,7 @@ import netflexBackgroundImage from "../assets/image/netflex.jpg";
 const GptSearch = () => {
   return (
     <div>
-      <div className="absolute h-full	-z-30">
+      <div className="fixed h-full	-z-30">
         <img
           className="w-screen h-screen"
           src={netflexBackgroundImage}
